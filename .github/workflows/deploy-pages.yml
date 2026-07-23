@@ -56,8 +56,8 @@ jobs:
       - run: node scripts/audit-photo-privacy.mjs
       - run: pnpm exec tsx --test apps/web/base-path.test.ts
       - run: pnpm --filter @afilmory/builder type-check
-      - run: pnpm --filter @afilmory/web type-check
       - run: pnpm --filter @afilmory/web build
+      - run: pnpm --filter @afilmory/web type-check
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

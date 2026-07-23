@@ -11,6 +11,7 @@ import type { PhotoManifest } from '~/types/photo'
 
 import { absoluteWithBasePath } from '../../../base-path'
 import { CopyButton } from './CopyButton'
+import { resolveSharePreviewUrl } from './share-preview'
 import { ShareActionButton } from './ShareActionButton'
 
 // OG image aspect ratio: 1200:628 (from og.renderer.tsx)
@@ -78,12 +79,20 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
     [photo.id, resolvedBaseUrl],
   )
 
-  const ogPreviewUrl = useMemo(
-    () => absoluteWithBasePath(`/og/${photo.id}`, resolvedBaseUrl),
-    [photo.id, resolvedBaseUrl],
+  const canUseDynamicOg = injectConfig.useNext || injectConfig.useCloud
+
+  const sharePreviewUrl = useMemo(
+    () => resolveSharePreviewUrl(photo, resolvedBaseUrl, canUseDynamicOg),
+    [
+      canUseDynamicOg,
+      photo.id,
+      photo.originalUrl,
+      photo.thumbnailUrl,
+      resolvedBaseUrl,
+    ],
   )
 
-  const canEmbed = injectConfig.useNext || injectConfig.useCloud
+  const canEmbed = canUseDynamicOg
 
   const embedCode = useMemo(() => {
     const embedScriptUrl = absoluteWithBasePath('/share/embed.js', resolvedBaseUrl)
@@ -160,7 +169,7 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
   const handleDownloadPreview = useCallback(async () => {
     try {
       setIsDownloadingPreview(true)
-      await downloadFile(ogPreviewUrl, `${photo.id}-og.png`)
+      await downloadFile(sharePreviewUrl, `${photo.id}-preview.jpg`)
       toast.success(t('photo.share.downloadPreview'))
     }
     catch {
@@ -169,7 +178,7 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
     finally {
       setIsDownloadingPreview(false)
     }
-  }, [ogPreviewUrl, photo.id, t])
+  }, [photo.id, sharePreviewUrl, t])
 
   const handleSocialShare = useCallback(
     (urlTemplate: string) => {
@@ -218,7 +227,7 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
               </div>
             )}
             <img
-              src={ogPreviewUrl}
+              src={sharePreviewUrl}
               alt={photo.title}
               className={clsxm(
                 'h-full w-full object-cover transition-opacity duration-300',

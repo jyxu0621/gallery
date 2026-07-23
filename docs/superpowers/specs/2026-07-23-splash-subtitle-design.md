@@ -6,7 +6,7 @@ The first-load splash screen renders `????????` beneath “Xiaoxu Photography”
 
 ## Design
 
-- Replace the corrupted description with `记录光影与旅途`.
+- Replace the corrupted description with `摄影、飞行、风光、旅途`.
 - Keep the existing splash layout, typography, timing, and animation unchanged.
 - Continue using the shared site description so the splash screen and generated page metadata remain consistent.
 

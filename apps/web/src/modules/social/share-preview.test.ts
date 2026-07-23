@@ -41,3 +41,16 @@ test('falls back to the source URL extension when the MIME type is generic', () 
     'DSC08646-preview.jpg',
   )
 })
+
+test('preserves supported BMP, TIFF, TIF, and HIF preview formats', () => {
+  const cases = [
+    ['image/bmp', '/photos/photo.bmp', 'photo-preview.bmp'],
+    ['image/tiff', '/photos/photo.tiff', 'photo-preview.tiff'],
+    ['application/octet-stream', '/photos/photo.tif', 'photo-preview.tif'],
+    ['application/octet-stream', '/photos/photo.hif', 'photo-preview.hif'],
+  ] as const
+
+  for (const [contentType, sourceUrl, expectedFilename] of cases) {
+    assert.equal(resolveDownloadedImageFilename('photo-preview', contentType, sourceUrl), expectedFilename)
+  }
+})

@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict'
+// eslint-disable-next-line test/no-import-node-test -- GitHub Pages CI runs this file with `tsx --test`.
 import test from 'node:test'
 
 import {
+  absoluteWithBasePath,
   GALLERY_BASE_PATH,
   normalizeBasePath,
+  rewriteManifestUrls,
   routerBasePath,
   withBasePath,
-  rewriteManifestUrls,
 } from './base-path'
 
 test('normalizes the GitHub Pages project base path', () => {
@@ -21,6 +23,18 @@ test('prefixes only local root-relative URLs', () => {
   assert.equal(withBasePath('/gallery/feed.xml'), '/gallery/feed.xml')
   assert.equal(withBasePath('https://example.com/photo.jpg'), 'https://example.com/photo.jpg')
   assert.equal(withBasePath('data:image/png;base64,abc'), 'data:image/png;base64,abc')
+})
+
+test('builds absolute URLs with the deployment base path', () => {
+  assert.equal(
+    absoluteWithBasePath('/og/DSC08432', 'https://jyxu0621.github.io'),
+    'https://jyxu0621.github.io/gallery/og/DSC08432',
+  )
+  assert.equal(
+    absoluteWithBasePath('/photos/DSC08432', 'http://127.0.0.1:4173'),
+    'http://127.0.0.1:4173/gallery/photos/DSC08432',
+  )
+  assert.equal(absoluteWithBasePath('/og/DSC08432', 'https://example.com', '/'), 'https://example.com/og/DSC08432')
 })
 
 test('rewrites local thumbnail URLs without changing remote originals', () => {

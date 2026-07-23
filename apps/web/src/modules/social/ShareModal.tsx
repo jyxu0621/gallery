@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { injectConfig, siteConfig } from '~/config'
 import type { PhotoManifest } from '~/types/photo'
 
+import { absoluteWithBasePath } from '../../../base-path'
 import { CopyButton } from './CopyButton'
 import { ShareActionButton } from './ShareActionButton'
 
@@ -72,27 +73,21 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
     return siteConfig.url?.replace(/\/$/, '') ?? ''
   }, [])
 
-  const shareLink = useMemo(() => {
-    const pathname = `/photos/${photo.id}`
-    if (!resolvedBaseUrl) {
-      return pathname
-    }
-    return `${resolvedBaseUrl}${pathname}`
-  }, [photo.id, resolvedBaseUrl])
+  const shareLink = useMemo(
+    () => absoluteWithBasePath(`/photos/${photo.id}`, resolvedBaseUrl),
+    [photo.id, resolvedBaseUrl],
+  )
 
-  const ogPreviewUrl = useMemo(() => {
-    const path = `/og/${photo.id}`
-    if (!resolvedBaseUrl) {
-      return path
-    }
-    return `${resolvedBaseUrl}${path}`
-  }, [photo.id, resolvedBaseUrl])
+  const ogPreviewUrl = useMemo(
+    () => absoluteWithBasePath(`/og/${photo.id}`, resolvedBaseUrl),
+    [photo.id, resolvedBaseUrl],
+  )
 
   const canEmbed = injectConfig.useNext || injectConfig.useCloud
 
   const embedCode = useMemo(() => {
-    const base = resolvedBaseUrl || ''
-    return `<script async src="${base}/share/embed.js" data-afilmory-photo="${photo.id}" data-aspect="${photo.width}:${photo.height}" data-width="100%"></script>`
+    const embedScriptUrl = absoluteWithBasePath('/share/embed.js', resolvedBaseUrl)
+    return `<script async src="${embedScriptUrl}" data-afilmory-photo="${photo.id}" data-aspect="${photo.width}:${photo.height}" data-width="100%"></script>`
   }, [photo.height, photo.id, photo.width, resolvedBaseUrl])
 
   const shareTitle = photo.title || t('photo.share.default.title')

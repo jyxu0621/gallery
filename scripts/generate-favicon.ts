@@ -1,11 +1,12 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import path, { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import sharp from 'sharp'
 
-const __dirname = path.dirname(new URL(import.meta.url).pathname)
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
-// 创建圆角遮罩
+// ??????
 function createRoundedCornersMask(size: number, cornerRadius: number) {
   const r = cornerRadius
   return `
@@ -15,12 +16,12 @@ function createRoundedCornersMask(size: number, cornerRadius: number) {
   `
 }
 
-// 为图片添加圆角
+// ???????
 async function addRoundedCorners(
   imageBuffer: Buffer,
   size: number,
 ): Promise<Buffer> {
-  // 计算圆角半径，约为尺寸的 12%
+  // ???????????? 12%
   const cornerRadius = Math.round(size * 0.12)
 
   const maskSvg = createRoundedCornersMask(size, cornerRadius)
@@ -37,12 +38,12 @@ async function addRoundedCorners(
     .toBuffer()
 }
 
-// 生成不同尺寸的 favicon
+// ??????? favicon
 export async function generateFavicons() {
   const logoPath = join(__dirname, '../logo.jpg')
   const outputDir = join(process.cwd(), 'public')
 
-  // 检查 logo 文件是否存在
+  // ?? logo ??????
   if (!existsSync(logoPath)) {
     throw new Error('Logo file not found: logo.jpg')
   }
@@ -61,10 +62,10 @@ export async function generateFavicons() {
   ]
 
   try {
-    // 读取原始 logo 图片
+    // ???? logo ??
     const logoBuffer = await sharp(logoPath).jpeg({ quality: 100 }).toBuffer()
 
-    // 生成各种尺寸的 PNG 文件
+    // ??????? PNG ??
     for (const { size, name } of sizes) {
       const resizedBuffer = await sharp(logoBuffer)
         .resize(size, size, {
@@ -77,15 +78,15 @@ export async function generateFavicons() {
         })
         .toBuffer()
 
-      // 添加圆角效果
+      // ??????
       const roundedBuffer = await addRoundedCorners(resizedBuffer, size)
 
       const outputPath = join(outputDir, name)
       writeFileSync(outputPath, roundedBuffer)
-      console.info(`✅ Generated favicon: ${name} (${size}x${size})`)
+      console.info(`? Generated favicon: ${name} (${size}x${size})`)
     }
 
-    // 生成主 favicon.ico（使用 32x32）
+    // ??? favicon.ico??? 32x32?
     const faviconResizedBuffer = await sharp(logoBuffer)
       .resize(32, 32, {
         fit: 'cover',
@@ -97,25 +98,25 @@ export async function generateFavicons() {
       })
       .toBuffer()
 
-    // 为 favicon.ico 添加圆角
+    // ? favicon.ico ????
     const faviconBuffer = await addRoundedCorners(faviconResizedBuffer, 32)
 
     const faviconPath = join(outputDir, 'favicon.ico')
     writeFileSync(faviconPath, faviconBuffer)
-    console.info(`✅ Generated main favicon: favicon.ico`)
+    console.info(`? Generated main favicon: favicon.ico`)
 
-    // PWA manifest 由 vite-plugin-pwa 生成，这里不再生成重复的文件
+    // PWA manifest ? vite-plugin-pwa ??????????????
 
     console.info(
-      `🎨 All favicons generated successfully from logo.jpg with rounded corners!`,
+      `?? All favicons generated successfully from logo.jpg with rounded corners!`,
     )
   } catch (error) {
-    console.error('❌ Error generating favicons:', error)
+    console.error('? Error generating favicons:', error)
     throw error
   }
 }
 
-// 如果直接运行此脚本
+// ?????????
 if (import.meta.url === `file://${process.argv[1]}`) {
   generateFavicons().catch(console.error)
 }

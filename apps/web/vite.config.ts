@@ -19,6 +19,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 import PKG from '../../package.json'
 import { siteConfig } from '../../site.config'
+import { GALLERY_BASE_PATH } from './base-path'
 import { astPlugin } from './plugins/vite/ast'
 import { createDependencyChunksPlugin } from './plugins/vite/deps'
 import { createFeedSitemapPlugin } from './plugins/vite/feed-sitemap'
@@ -32,7 +33,7 @@ const devPrint = (): PluginOption => ({
   name: 'dev-print',
   configureServer(server: ViteDevServer) {
     server.printUrls = () => {
-      console.info(`  ${green('➜')}  ${dim('Next.js SSR')}: ${cyan('http://localhost:1924')}`)
+      console.info(`  ${green('?')}  ${dim('Next.js SSR')}: ${cyan('http://localhost:1924')}`)
     }
   },
 })
@@ -52,9 +53,10 @@ const ReactCompilerConfig = {
 }
 
 const ROOT = fileURLToPath(new URL('./', import.meta.url))
+const pagesPath = resolve(ROOT, './src/pages').replaceAll('\\', '/')
 const routeGenPlugins: PluginOption[] = [
   routeBuilderPlugin({
-    pagePattern: `${resolve(ROOT, './src/pages')}/**/*.tsx`,
+    pagePattern: `${pagesPath}/**/*.tsx`,
     outputPath: `${resolve(ROOT, './src/generated-routes.ts')}`,
     enableInDev: true,
 
@@ -66,8 +68,8 @@ const staticWebBuildPlugins: PluginOption[] = [
   siteConfigInjectPlugin(),
   photosStaticPlugin(),
   VitePWA({
-    base: '/',
-    scope: '/',
+    base: GALLERY_BASE_PATH,
+    scope: GALLERY_BASE_PATH,
     registerType: 'autoUpdate',
     includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
     manifest: {
@@ -77,8 +79,8 @@ const staticWebBuildPlugins: PluginOption[] = [
       theme_color: '#1c1c1e',
       background_color: '#1c1c1e',
       display: 'standalone',
-      scope: '/',
-      start_url: '/',
+      scope: GALLERY_BASE_PATH,
+      start_url: GALLERY_BASE_PATH,
       icons: [
         {
           src: 'android-chrome-192x192.png',
@@ -99,9 +101,9 @@ const staticWebBuildPlugins: PluginOption[] = [
     },
     workbox: {
       maximumFileSizeToCacheInBytes: 10 * 1024 * 1024, // 10MB
-      navigateFallback: '',
+      navigateFallback: `${GALLERY_BASE_PATH}index.html`,
       globPatterns: ['**/*.{js,css,ico,png,svg,webp}'],
-      globIgnores: ['**/*.{jpg,jpeg}'], // 忽略大图片文件
+      globIgnores: ['**/*.{jpg,jpeg}'], // ???????
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -139,7 +141,7 @@ const staticWebBuildPlugins: PluginOption[] = [
       ],
     },
     devOptions: {
-      enabled: false, // 开发环境不启用 PWA
+      enabled: false, // ??????? PWA
     },
   }),
 
@@ -175,7 +177,7 @@ const BUILD_FOR_SERVER_SERVE = process.env.BUILD_FOR_SERVER_SERVE === '1'
 // https://vitejs.dev/config/
 export default defineConfig(() => {
   return {
-    base: BUILD_FOR_SERVER_SERVE ? '/static/web/' : '/',
+    base: BUILD_FOR_SERVER_SERVE ? '/static/web/' : GALLERY_BASE_PATH,
     build: {
       rollupOptions: BUILD_FOR_SERVER_SERVE
         ? {
@@ -218,7 +220,7 @@ export default defineConfig(() => {
       devPrint(),
     ],
     server: {
-      port: !DEV_NEXT_JS ? 1924 : 13333, // 1924 年首款 35mm 相机问世
+      port: !DEV_NEXT_JS ? 1924 : 13333, // 1924 ??? 35mm ????
     },
     define: {
       APP_DEV_CWD: JSON.stringify(process.cwd()),

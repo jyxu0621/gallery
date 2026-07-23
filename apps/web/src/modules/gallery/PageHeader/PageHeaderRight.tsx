@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { Drawer } from 'vaul'
 
+import { withBasePath } from '../../../../base-path'
 import { gallerySettingAtom, isCommandPaletteOpenAtom } from '~/atoms/app'
 import { sessionUserAtom } from '~/atoms/session'
 import { injectConfig, siteConfig } from '~/config'
@@ -31,10 +32,10 @@ export const PageHeaderRight = () => {
   const navigate = useNavigate()
   const sessionUser = useAtomValue(sessionUserAtom)
 
-  // 计算视图设置是否有自定义配置
+  // ??????????????
   const hasViewCustomization = gallerySetting.columns !== 'auto' || gallerySetting.sortOrder !== 'desc'
 
-  // 计算过滤器数量
+  // ???????
   const filterCount
     = gallerySetting.selectedTags.length
       + gallerySetting.selectedCameras.length
@@ -65,7 +66,7 @@ export const PageHeaderRight = () => {
           <MobileViewButton
             icon="i-mingcute-layout-grid-line"
             title={t('action.view.title')}
-            badge={hasViewCustomization ? '●' : undefined}
+            badge={hasViewCustomization ? '?' : undefined}
           >
             <ViewPanel />
           </MobileViewButton>
@@ -73,7 +74,7 @@ export const PageHeaderRight = () => {
           <DesktopViewButton
             icon="i-mingcute-layout-grid-line"
             title={t('action.view.title')}
-            badge={hasViewCustomization ? '●' : undefined}
+            badge={hasViewCustomization ? '?' : undefined}
           >
             <ViewPanel />
           </DesktopViewButton>
@@ -160,7 +161,12 @@ const MoreActionMenu = () => {
         )}
         {hasRss && (
           <DropdownMenuItem asChild>
-            <a href="/feed.xml" target="_blank" rel="noreferrer" className="flex items-center gap-2">
+            <a
+              href={withBasePath('/feed.xml')}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-2"
+            >
               <i className="i-mingcute-rss-2-fill text-base" />
               RSS
             </a>
@@ -171,7 +177,7 @@ const MoreActionMenu = () => {
   )
 }
 
-// 紧凑版本的桌面端视图按钮
+// ????????????
 const DesktopViewButton = ({
   icon,
   title,
@@ -205,7 +211,7 @@ const DesktopViewButton = ({
   )
 }
 
-// 紧凑版本的移动端视图按钮
+// ????????????
 const MobileViewButton = ({
   icon,
   title,
@@ -247,7 +253,7 @@ const MobileViewButton = ({
   )
 }
 
-// 登录按钮
+// ????
 const LoginButton = () => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -296,7 +302,7 @@ const LoginButton = () => {
   )
 }
 
-// 登录平台图标
+// ??????
 const LoginPlatformIcon = ({ provider }: { provider: string }) => {
   switch (provider) {
     case 'github': {
@@ -330,7 +336,7 @@ const LoginPlatformIcon = ({ provider }: { provider: string }) => {
   }
 }
 
-// 用户菜单按钮
+// ??????
 const UserMenuButton = ({
   user,
 }: {
@@ -360,7 +366,7 @@ const UserMenuButton = ({
     }
   }
 
-  // 如果是 admin，点击头像直接导航到 dashboard
+  // ??? admin?????????? dashboard
   if (isAdmin) {
     return (
       <button
@@ -375,7 +381,7 @@ const UserMenuButton = ({
     )
   }
 
-  // 非 admin 用户显示菜单
+  // ? admin ??????
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

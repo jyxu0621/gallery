@@ -3,6 +3,7 @@ import type { Plugin } from 'vite'
 import { cleanupOldOGImages } from '../../../../scripts/cleanup-og-images.js'
 import { generateFavicons } from '../../../../scripts/generate-favicon.js'
 import { generateOGImage } from '../../../../scripts/generate-og-image.js'
+import { withBasePath } from '../../base-path'
 
 interface OGImagePluginOptions {
   title?: string
@@ -24,15 +25,15 @@ export function ogImagePlugin(options: OGImagePluginOptions = {}): Plugin {
   return {
     name: 'og-image-plugin',
     async buildStart() {
-      // 在构建开始时生成 OG 图片
+      // ???????? OG ??
       const timestamp = Date.now()
       const fileName = `og-image-${timestamp}.png`
 
       try {
-        // 生成 favicon
+        // ?? favicon
         await generateFavicons()
 
-        // 生成 OG 图片
+        // ?? OG ??
         await generateOGImage({
           title,
           description,
@@ -40,10 +41,10 @@ export function ogImagePlugin(options: OGImagePluginOptions = {}): Plugin {
           includePhotos: true,
           photoCount: 4,
         })
-        ogImagePath = `/${fileName}`
-        console.info(`🖼️  OG image generated: ${ogImagePath}`)
+        ogImagePath = withBasePath(`/${fileName}`)
+        console.info(`???  OG image generated: ${ogImagePath}`)
 
-        // 清理旧的 OG 图片
+        // ???? OG ??
         await cleanupOldOGImages(3)
       } catch (error) {
         console.error('Failed to generate OG image:', error)
@@ -53,11 +54,11 @@ export function ogImagePlugin(options: OGImagePluginOptions = {}): Plugin {
       order: 'pre',
       handler(html) {
         if (!ogImagePath) {
-          console.warn('⚠️  No OG image path available')
+          console.warn('??  No OG image path available')
           return html
         }
 
-        // 生成 meta 标签
+        // ?? meta ??
         const metaTags = `
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -83,14 +84,14 @@ export function ogImagePlugin(options: OGImagePluginOptions = {}): Plugin {
     <meta name="msapplication-TileColor" content="#0a0a0a" />
     
     <!-- Favicon and app icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-            <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="${withBasePath('/apple-touch-icon.png')}" />
+    <link rel="icon" type="image/png" sizes="32x32" href="${withBasePath('/favicon-32x32.png')}" />
+    <link rel="icon" type="image/png" sizes="16x16" href="${withBasePath('/favicon-16x16.png')}" />
+            <link rel="manifest" href="${withBasePath('/manifest.webmanifest')}" />
+    <link rel="shortcut icon" href="${withBasePath('/favicon.ico')}" />
         `
 
-        // 在 </head> 标签前插入 meta 标签
+        // ? </head> ????? meta ??
         return html.replace('</head>', `${metaTags}\n  </head>`)
       },
     },

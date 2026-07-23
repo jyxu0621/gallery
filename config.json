@@ -1,0 +1,20 @@
+{
+  "name": "Xiaoxu Photography",
+  "title": "Xiaoxu Photography",
+  "description": "????????",
+  "url": "https://jyxu0621.github.io/gallery/",
+  "accentColor": "#4d879f",
+  "author": {
+    "name": "Xiaoxu",
+    "url": "https://github.com/jyxu0621"
+  },
+  "social": {
+    "github": "jyxu0621",
+    "twitter": ""
+  },
+  "map": [
+    "maplibre"
+  ],
+  "mapStyle": "builtin",
+  "mapProjection": "mercator"
+}

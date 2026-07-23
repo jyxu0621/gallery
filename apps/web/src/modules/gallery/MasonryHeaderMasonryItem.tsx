@@ -3,6 +3,7 @@ import { repository } from '@pkg'
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
 import { useTranslation } from 'react-i18next'
 
+import { withBasePath } from '../../../base-path'
 import { siteConfig } from '~/config'
 import { usePhotos } from '~/hooks/usePhotoViewer'
 
@@ -103,7 +104,7 @@ export const MasonryHeaderMasonryItem = ({ style, className }: { style?: React.C
             )}
             {hasRss && (
               <a
-                href="/feed.xml"
+                href={withBasePath('/feed.xml')}
                 target="_blank"
                 className="text-text-secondary flex items-center justify-center p-2 duration-200 hover:text-[#ec672c]"
                 title="RSS"

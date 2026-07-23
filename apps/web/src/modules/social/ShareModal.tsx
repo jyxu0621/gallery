@@ -11,7 +11,7 @@ import type { PhotoManifest } from '~/types/photo'
 
 import { absoluteWithBasePath } from '../../../base-path'
 import { CopyButton } from './CopyButton'
-import { resolveSharePreviewUrl } from './share-preview'
+import { resolveDownloadedImageFilename, resolveSharePreviewUrl } from './share-preview'
 import { ShareActionButton } from './ShareActionButton'
 
 // OG image aspect ratio: 1200:628 (from og.renderer.tsx)
@@ -83,13 +83,7 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
 
   const sharePreviewUrl = useMemo(
     () => resolveSharePreviewUrl(photo, resolvedBaseUrl, canUseDynamicOg),
-    [
-      canUseDynamicOg,
-      photo.id,
-      photo.originalUrl,
-      photo.thumbnailUrl,
-      resolvedBaseUrl,
-    ],
+    [canUseDynamicOg, photo.id, photo.originalUrl, photo.thumbnailUrl, resolvedBaseUrl],
   )
 
   const canEmbed = canUseDynamicOg
@@ -169,7 +163,7 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
   const handleDownloadPreview = useCallback(async () => {
     try {
       setIsDownloadingPreview(true)
-      await downloadFile(sharePreviewUrl, `${photo.id}-preview.jpg`)
+      await downloadFile(sharePreviewUrl, `${photo.id}-preview`, true)
       toast.success(t('photo.share.downloadPreview'))
     }
     catch {
@@ -301,16 +295,17 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
 
 ShareSheet.contentClassName = 'max-w-3xl w-full z-1000000'
 
-async function downloadFile(url: string, filename: string) {
+async function downloadFile(url: string, filename: string, inferImageExtension = false) {
   const response = await fetch(url)
   if (!response.ok) {
     throw new Error('Unable to download file')
   }
   const blob = await response.blob()
+  const resolvedFilename = inferImageExtension ? resolveDownloadedImageFilename(filename, blob.type, url) : filename
   const blobUrl = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = blobUrl
-  link.download = filename
+  link.download = resolvedFilename
   document.body.append(link)
   link.click()
   link.remove()

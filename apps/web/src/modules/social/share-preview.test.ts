@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 // eslint-disable-next-line test/no-import-node-test -- GitHub Pages CI runs focused tests with `tsx --test`.
 import test from 'node:test'
 
-import { resolveSharePreviewUrl } from './share-preview'
+import { resolveDownloadedImageFilename, resolveSharePreviewUrl } from './share-preview'
 
 const photo = {
   id: 'DSC08646',
@@ -28,5 +28,16 @@ test('uses the dynamic OG endpoint only when SSR or Cloud is enabled', () => {
   assert.equal(
     resolveSharePreviewUrl(photo, 'https://jyxu0621.github.io', true),
     'https://jyxu0621.github.io/gallery/og/DSC08646',
+  )
+})
+
+test('uses the response MIME type for a downloaded dynamic OG preview', () => {
+  assert.equal(resolveDownloadedImageFilename('DSC08646-preview', 'image/png', '/og/DSC08646'), 'DSC08646-preview.png')
+})
+
+test('falls back to the source URL extension when the MIME type is generic', () => {
+  assert.equal(
+    resolveDownloadedImageFilename('DSC08646-preview', 'application/octet-stream', photo.originalUrl),
+    'DSC08646-preview.jpg',
   )
 })

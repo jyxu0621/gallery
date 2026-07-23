@@ -54,7 +54,13 @@ jobs:
             pnpm build:manifest
           fi
       - run: node scripts/audit-photo-privacy.mjs
-      - run: pnpm exec tsx --test apps/web/base-path.test.ts
+      - name: Test GitHub Pages routing and sharing
+        run: >-
+          pnpm exec tsx --test
+          apps/web/base-path.test.ts
+          apps/web/site-config.test.ts
+          apps/web/src/modules/social/share-preview.test.ts
+          apps/web/scripts/pages-fallback.test.ts
       - run: pnpm --filter @afilmory/builder type-check
       - run: pnpm --filter @afilmory/web build
       - run: pnpm --filter @afilmory/web type-check

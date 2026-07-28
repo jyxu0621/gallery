@@ -26,6 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: true
+      GIT_TOKEN: ${{ secrets.GALLERY_PHOTOS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

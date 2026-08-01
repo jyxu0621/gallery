@@ -35,6 +35,10 @@ test('builds absolute URLs with the deployment base path', () => {
     'http://127.0.0.1:4173/gallery/photos/DSC08432',
   )
   assert.equal(absoluteWithBasePath('/og/DSC08432', 'https://example.com', '/'), 'https://example.com/og/DSC08432')
+  assert.equal(
+    absoluteWithBasePath('/?tags=%E5%8C%97%E4%BA%AC', 'https://jyxu0621.github.io'),
+    'https://jyxu0621.github.io/gallery/?tags=%E5%8C%97%E4%BA%AC',
+  )
 })
 
 test('rewrites local thumbnail URLs without changing remote originals', () => {

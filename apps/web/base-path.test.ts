@@ -61,3 +61,28 @@ test('rewrites local thumbnail URLs without changing remote originals', () => {
   )
   assert.equal(manifest.data[0].thumbnailUrl, '/thumbnails/one.jpg')
 })
+
+test('moves generated thumbnails to the image CDN when a storage key is available', () => {
+  const manifest = {
+    data: [
+      {
+        id: 'nested-photo',
+        s3Key: '旅行/Xiaomi 13.jpg',
+        thumbnailUrl: '/thumbnails/nested-photo.jpg',
+        originalUrl: '/photos/nested-photo.jpg',
+      },
+    ],
+  }
+
+  const rewritten = rewriteManifestUrls(manifest)
+
+  assert.equal(
+    rewritten.data[0].thumbnailUrl,
+    'https://cdn.51shang.top/photos/%E6%97%85%E8%A1%8C/Xiaomi%2013.jpg',
+  )
+  assert.equal(
+    rewritten.data[0].originalUrl,
+    'https://cdn.51shang.top/photos/%E6%97%85%E8%A1%8C/Xiaomi%2013.jpg',
+  )
+  assert.equal(manifest.data[0].thumbnailUrl, '/thumbnails/nested-photo.jpg')
+})

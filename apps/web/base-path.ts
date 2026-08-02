@@ -1,4 +1,5 @@
 export const GALLERY_BASE_PATH = '/gallery/'
+export const GALLERY_IMAGE_CDN = 'https://cdn.51shang.top/photos'
 
 export function normalizeBasePath(basePath: string): string {
   const trimmed = basePath.trim()
@@ -39,10 +40,21 @@ export function absoluteWithBasePath(pathname: string, origin: string, basePath 
 type ManifestPhoto = {
   thumbnailUrl?: string | null
   originalUrl?: string | null
+  s3Key?: string | null
 }
 
 type ManifestShape = {
   data?: ManifestPhoto[]
+}
+
+function isRemoteUrl(url: string): boolean {
+  return /^(?:https?:)?\/\//i.test(url)
+}
+
+function withImageCdn(key: string, imageCdn = GALLERY_IMAGE_CDN): string {
+  const normalizedKey = key.replace(/^\/+/, '').replace(/^photos\//i, '')
+  const encodedPath = normalizedKey.split('/').map(encodeURIComponent).join('/')
+  return `${imageCdn.replace(/\/+$/, '')}/${encodedPath}`
 }
 
 export function rewriteManifestUrls<T extends ManifestShape>(manifest: T, basePath = GALLERY_BASE_PATH): T {
@@ -50,10 +62,16 @@ export function rewriteManifestUrls<T extends ManifestShape>(manifest: T, basePa
 
   for (const photo of rewritten.data ?? []) {
     if (photo.thumbnailUrl) {
-      photo.thumbnailUrl = withBasePath(photo.thumbnailUrl, basePath)
+      photo.thumbnailUrl =
+        photo.s3Key && !isRemoteUrl(photo.thumbnailUrl)
+          ? withImageCdn(photo.s3Key)
+          : withBasePath(photo.thumbnailUrl, basePath)
     }
     if (photo.originalUrl) {
-      photo.originalUrl = withBasePath(photo.originalUrl, basePath)
+      photo.originalUrl =
+        photo.s3Key && !isRemoteUrl(photo.originalUrl)
+          ? withImageCdn(photo.s3Key)
+          : withBasePath(photo.originalUrl, basePath)
     }
   }
 

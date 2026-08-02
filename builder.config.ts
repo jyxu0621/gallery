@@ -13,6 +13,7 @@ export default defineBuilderConfig(() => ({
     path: 'photos',
     token: env.GIT_TOKEN,
     useRawUrl: true,
+    customDomain: 'cdn.51shang.top',
     maxFileLimit: 1000,
   },
   system: {

@@ -340,19 +340,20 @@ export class GitHubStorageProvider implements StorageProvider {
 
   generatePublicUrl(key: string): string {
     const fullPath = this.getFullPath(key)
+    const encodedPath = fullPath.split('/').map(encodeURIComponent).join('/')
 
     // 如果设置了自定义 CDN 域名，直接使用
     if (this.githubConfig.customDomain) {
       const customDomain = this.githubConfig.customDomain.replace(/\/+$/, '') // 移除末尾的斜杠
-      return `https://${customDomain.replace(/^https?:\/\//, '')}/${fullPath}`
+      return `https://${customDomain.replace(/^https?:\/\//, '')}/${encodedPath}`
     }
 
     if (this.githubConfig.useRawUrl) {
       // 使用 raw.githubusercontent.com 获取文件
-      return `https://raw.githubusercontent.com/${this.githubConfig.owner}/${this.githubConfig.repo}/${this.githubConfig.branch}/${fullPath}`
+      return `https://raw.githubusercontent.com/${this.githubConfig.owner}/${this.githubConfig.repo}/${this.githubConfig.branch}/${encodedPath}`
     } else {
       // 使用 GitHub 的 blob URL
-      return `https://github.com/${this.githubConfig.owner}/${this.githubConfig.repo}/blob/${this.githubConfig.branch}/${fullPath}`
+      return `https://github.com/${this.githubConfig.owner}/${this.githubConfig.repo}/blob/${this.githubConfig.branch}/${encodedPath}`
     }
   }
 

@@ -1,9 +1,19 @@
 import { absoluteWithBasePath } from '../../../base-path'
 
+export const DEFAULT_SHARE_PREVIEW_ASPECT_RATIO = 1200 / 628
+
 export interface SharePreviewPhoto {
   id: string
   thumbnailUrl?: string | null
   originalUrl: string
+}
+
+export function resolveSharePreviewAspectRatio(
+  width: number,
+  height: number,
+  fallback = DEFAULT_SHARE_PREVIEW_ASPECT_RATIO,
+): number {
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0 ? width / height : fallback
 }
 
 const IMAGE_EXTENSION_BY_MIME_TYPE: Record<string, string> = {

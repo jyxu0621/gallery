@@ -11,11 +11,8 @@ import type { PhotoManifest } from '~/types/photo'
 
 import { absoluteWithBasePath } from '../../../base-path'
 import { CopyButton } from './CopyButton'
-import { resolveDownloadedImageFilename, resolveSharePreviewUrl } from './share-preview'
+import { resolveDownloadedImageFilename, resolveSharePreviewAspectRatio, resolveSharePreviewUrl } from './share-preview'
 import { ShareActionButton } from './ShareActionButton'
-
-// OG image aspect ratio: 1200:628 (from og.renderer.tsx)
-const OG_ASPECT_RATIO = 1200 / 628
 
 interface ShareModalTriggerProps {
   photo: PhotoManifest
@@ -65,7 +62,8 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
   const { t } = useTranslation()
   const [isDownloadingOriginal, setIsDownloadingOriginal] = useState(false)
   const [isDownloadingPreview, setIsDownloadingPreview] = useState(false)
-  const [isOgImageLoading, setIsOgImageLoading] = useState(true)
+  const [isPreviewLoading, setIsPreviewLoading] = useState(true)
+  const [previewAspectRatio, setPreviewAspectRatio] = useState(() => resolveSharePreviewAspectRatio(photo.width, photo.height))
 
   const resolvedBaseUrl = useMemo(() => {
     if (typeof window !== 'undefined' && window.location?.origin) {
@@ -212,26 +210,30 @@ const ShareSheet: ModalComponent<ShareSheetProps> = ({ photo, blobSrc, dismiss }
 
       <div className="mb-4 space-y-2">
         <p className="text-xs font-medium text-white/50">{t('photo.share.preview')}</p>
-        <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/40">
-          {/* Fixed aspect ratio placeholder to prevent CLS */}
-          <div className="w-full" style={{ aspectRatio: OG_ASPECT_RATIO }}>
-            {isOgImageLoading && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/5">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
-              </div>
+        <div
+          className="relative flex min-h-36 w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40"
+          style={{ aspectRatio: isPreviewLoading ? previewAspectRatio : undefined }}
+        >
+          {isPreviewLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/5">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            </div>
+          )}
+          <img
+            src={sharePreviewUrl}
+            alt={photo.title}
+            className={clsxm(
+              'block h-auto max-h-[min(52vh,36rem)] max-w-full object-contain transition-opacity duration-300 sm:max-h-[min(60vh,36rem)]',
+              isPreviewLoading ? 'w-full opacity-0' : 'w-auto opacity-100',
             )}
-            <img
-              src={sharePreviewUrl}
-              alt={photo.title}
-              className={clsxm(
-                'h-full w-full object-cover transition-opacity duration-300',
-                isOgImageLoading ? 'opacity-0' : 'opacity-100',
-              )}
-              loading="lazy"
-              onLoad={() => setIsOgImageLoading(false)}
-              onError={() => setIsOgImageLoading(false)}
-            />
-          </div>
+            loading="lazy"
+            onLoad={(event) => {
+              setIsPreviewLoading(false)
+              const { naturalWidth, naturalHeight } = event.currentTarget
+              setPreviewAspectRatio(current => resolveSharePreviewAspectRatio(naturalWidth, naturalHeight, current))
+            }}
+            onError={() => setIsPreviewLoading(false)}
+          />
         </div>
       </div>
 

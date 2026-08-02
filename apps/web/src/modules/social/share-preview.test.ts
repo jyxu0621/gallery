@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 // eslint-disable-next-line test/no-import-node-test -- GitHub Pages CI runs focused tests with `tsx --test`.
 import test from 'node:test'
 
-import { resolveDownloadedImageFilename, resolveSharePreviewUrl } from './share-preview'
+import { resolveDownloadedImageFilename, resolveSharePreviewAspectRatio, resolveSharePreviewUrl } from './share-preview'
 
 const photo = {
   id: 'DSC08646',
@@ -15,6 +15,15 @@ test('uses the generated thumbnail for a static GitHub Pages preview', () => {
     resolveSharePreviewUrl(photo, 'https://jyxu0621.github.io', false),
     'https://jyxu0621.github.io/gallery/thumbnails/DSC08646.jpg',
   )
+})
+
+test('uses the photo dimensions for the initial share preview ratio', () => {
+  assert.equal(resolveSharePreviewAspectRatio(1280, 1920), 2 / 3)
+})
+
+test('falls back to the OG ratio when photo dimensions are unavailable', () => {
+  assert.equal(resolveSharePreviewAspectRatio(0, 1920), 1200 / 628)
+  assert.equal(resolveSharePreviewAspectRatio(1280, Number.NaN), 1200 / 628)
 })
 
 test('falls back to the original image when a static thumbnail is unavailable', () => {
